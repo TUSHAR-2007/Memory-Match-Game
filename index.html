@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Memory Card Match</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Exo+2:wght@300;400;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ══ GLOBAL BACKGROUND ══ -->
+    <div id="floatingCards"></div>
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+
+    <!-- ══ HOME ══ -->
+    <div id="home">
+        <button id="logoutBtn" onclick="logout()" title="Log Out">⏏ LOG OUT</button>
+        <div class="home-center">
+            <div class="title-wrap">
+                <div class="title-eyebrow">✦ ARCADE CLASSIC ✦</div>
+                <h1 id="title">MEMORY<br><span class="title-accent">MATCH</span></h1>
+                <p class="title-sub">Flip &nbsp;·&nbsp; Match &nbsp;·&nbsp; Conquer</p>
+            </div>
+
+            <!-- Theme Selector -->
+            <div class="theme-selector">
+                <div class="theme-label">ICON THEME</div>
+                <div class="theme-options">
+                    <button class="theme-btn active" data-theme="animals" onclick="selectTheme('animals')">🐶
+                        Animals</button>
+                    <button class="theme-btn" data-theme="fruits" onclick="selectTheme('fruits')">🍎 Fruits</button>
+                    <button class="theme-btn" data-theme="space" onclick="selectTheme('space')">🚀 Space</button>
+                    <button class="theme-btn" data-theme="sports" onclick="selectTheme('sports')">⚽ Sports</button>
+                </div>
+            </div>
+
+            <div class="mode-grid">
+                <button class="mode-btn easy-btn" onclick="startGame(4, 4, 70, 'Easy')">
+                    <span class="btn-icon">🟢</span>
+                    <span class="btn-label">Easy</span>
+                    <span class="btn-detail">4×4 · 70s</span>
+                </button>
+                <button class="mode-btn medium-btn" onclick="startGame(6, 6, 130, 'Medium')">
+                    <span class="btn-icon">🟡</span>
+                    <span class="btn-label">Medium</span>
+                    <span class="btn-detail">6×6 · 130s</span>
+                </button>
+                <button class="mode-btn hard-btn" onclick="startGame(8, 8, 250, 'Hard')">
+                    <span class="btn-icon">🔴</span>
+                    <span class="btn-label">Hard</span>
+                    <span class="btn-detail">8×8 · 250s</span>
+                </button>
+                <button class="mode-btn custom-btn" onclick="showCustom()">
+                    <span class="btn-icon">⚙️</span>
+                    <span class="btn-label">Custom</span>
+                    <span class="btn-detail">Your rules</span>
+                </button>
+            </div>
+
+            <div id="customBox">
+                <div class="custom-inner">
+                    <div class="custom-row">
+                        <label>Rows</label>
+                        <input type="number" id="customRows" min="2" max="100" value="20">
+                    </div>
+                    <div class="custom-row">
+                        <label>Cols</label>
+                        <input type="number" id="customCols" min="2" max="100" value="20">
+                    </div>
+                    <div class="custom-row">
+                        <label>Time (s)</label>
+                        <input type="number" id="customTime" value="120">
+                    </div>
+                    <button class="mode-btn start-custom-btn" onclick="startCustom()">▶ START</button>
+                </div>
+            </div>
+
+            <!-- Leaderboard -->
+            <div class="leaderboard-wrap">
+                <div class="lb-header">
+                    <span class="lb-title">🏅 HIGH SCORES</span>
+                    <button class="lb-clear-btn" onclick="clearScores()">CLEAR</button>
+                </div>
+                <div id="leaderboard"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ GAME ══ -->
+    <div id="game">
+        <div class="top">
+            <div id="modeText"></div>
+            <div id="hudName" style="display:none">👤 &nbsp;<span id="hudNameText"></span></div>
+            <div>IQ &nbsp;<span id="iq">100</span></div>
+            <div>Score &nbsp;<span id="score">0</span></div>
+            <div>Moves &nbsp;<span id="moves">0</span></div>
+        </div>
+
+        <!-- Combo Banner -->
+        <div id="comboBanner" class="combo-banner"></div>
+
+        <div class="controls">
+            <button id="hintBtn" onclick="hint()">💡 HINT <span id="hintCount">(3)</span></button>
+            <button id="pauseBtn" onclick="pauseGame()">⏸</button>
+            <button id="gameLogoutBtn" onclick="logout()" title="Log Out">⏏</button>
+        </div>
+
+        <div class="time-row">TIME &nbsp;<span id="timeDisplay">∞</span></div>
+
+        <div class="timer-bar">
+            <div class="timer-fill" id="timerFill"></div>
+        </div>
+
+        <div id="board"></div>
+    </div>
+
+    <!-- ══ GAME OVER MODAL ══ -->
+    <div id="gameOverModal">
+        <div class="pause-box">
+            <div class="pause-icon">⏰</div>
+            <div class="pause-title">TIME UP!</div>
+            <div class="pause-divider"></div>
+
+            <div class="win-stats" style="margin: 16px 0 24px;">
+                <div class="win-stat-box">
+                    <div class="win-stat-label">Score</div>
+                    <div class="win-stat-value" id="goScore">0</div>
+                </div>
+                <div class="win-stat-box">
+                    <div class="win-stat-label">IQ</div>
+                    <div class="win-stat-value" id="goIQ">100</div>
+                </div>
+                <div class="win-stat-box">
+                    <div class="win-stat-label">Moves</div>
+                    <div class="win-stat-value" id="goMoves">0</div>
+                </div>
+            </div>
+
+            <button class="overlay-btn btn-resume" onclick="resetGame()">
+                <span class="ob-icon">🔄</span>
+                <span class="ob-text">Play Again</span>
+            </button>
+            <button class="overlay-btn btn-home" onclick="goHome()">
+                <span class="ob-icon">🏠</span>
+                <span class="ob-text">Home</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ PAUSE MENU ══ -->
+    <div id="pauseMenu">
+        <div class="pause-box">
+            <div class="pause-icon">⏸️</div>
+            <div class="pause-title">PAUSED</div>
+            <div class="pause-divider"></div>
+
+            <button class="overlay-btn btn-resume" onclick="resumeGame()">
+                <span class="ob-icon">▶️</span>
+                <span class="ob-text">Resume</span>
+            </button>
+            <button class="overlay-btn btn-reset" onclick="resetGame()">
+                <span class="ob-icon">🔄</span>
+                <span class="ob-text">Restart</span>
+            </button>
+            <button class="overlay-btn btn-home" onclick="goHome()">
+                <span class="ob-icon">🏠</span>
+                <span class="ob-text">Home</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- ══ WIN SCREEN ══ -->
+    <div id="winScreen">
+        <canvas id="confettiCanvas"></canvas>
+        <div class="win-content">
+            <div class="win-trophy">🏆</div>
+            <h1 class="win-title">You Won!</h1>
+            <div class="win-stats">
+                <div class="win-stat-box">
+                    <div class="win-stat-label">Score</div>
+                    <div class="win-stat-value" id="winScore">0</div>
+                </div>
+                <div class="win-stat-box">
+                    <div class="win-stat-label">IQ</div>
+                    <div class="win-stat-value" id="winIQ">100</div>
+                </div>
+                <div class="win-stat-box">
+                    <div class="win-stat-label">Time Left</div>
+                    <div class="win-stat-value" id="winTime">∞</div>
+                </div>
+                <div class="win-stat-box">
+                    <div class="win-stat-label">Moves</div>
+                    <div class="win-stat-value" id="winMoves">0</div>
+                </div>
+            </div>
+            <div class="win-rating" id="winRating"></div>
+            <div id="newHighScore" class="new-highscore" style="display:none;">🎉 NEW HIGH SCORE!</div>
+            <div class="win-buttons">
+                <button class="win-btn" onclick="resetGame()">▶ Play Again</button>
+                <button class="win-btn" onclick="goHome()">🏠 Home</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TUTORIAL OVERLAY ══ -->
+    <div id="tutorialOverlay">
+        <div class="tut-box">
+            <!-- User number badge -->
+            <div class="tut-user-badge" id="tutUserBadge">
+                <span class="tut-user-label">PLAYER</span>
+                <span class="tut-user-number" id="tutUserNumber">#—</span>
+            </div>
+
+            <!-- Step indicators -->
+            <div class="tut-dots">
+                <span class="tut-dot active" data-step="0"></span>
+                <span class="tut-dot" data-step="1"></span>
+                <span class="tut-dot" data-step="2"></span>
+                <span class="tut-dot" data-step="3"></span>
+                <span class="tut-dot" data-step="4"></span>
+                <span class="tut-dot" data-step="5"></span>
+            </div>
+
+            <!-- Step 0: Tutorial Video -->
+            <div class="tut-step active" data-step="0">
+                <div class="tut-emoji">🎬</div>
+                <h2 class="tut-title">Quick Tutorial</h2>
+                <p class="tut-desc">Watch this short video to see how the game works!</p>
+                <div class="tut-video-wrap">
+                    <div class="tut-video-player" id="tutVideoPlayer">
+                        <!-- Animated preview cards simulating gameplay -->
+                        <div class="tut-vid-board">
+                            <div class="tut-vid-card tut-vid-flip" style="--d:0.0s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🐶</div>
+                                </div>
+                            </div>
+                            <div class="tut-vid-card" style="--d:0.3s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🐱</div>
+                                </div>
+                            </div>
+                            <div class="tut-vid-card tut-vid-flip2" style="--d:0.6s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🐶</div>
+                                </div>
+                            </div>
+                            <div class="tut-vid-card" style="--d:0.9s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🐱</div>
+                                </div>
+                            </div>
+                            <div class="tut-vid-card" style="--d:1.2s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🚀</div>
+                                </div>
+                            </div>
+                            <div class="tut-vid-card" style="--d:1.5s">
+                                <div class="tut-vid-inner">
+                                    <div class="tut-vid-front">?</div>
+                                    <div class="tut-vid-back">🚀</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="tut-vid-overlay">
+                            <div class="tut-vid-caption" id="tutVidCaption">Flip a card…</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="tut-vid-steps">
+                    <div class="tut-vid-step-item" id="vs1">👆 Tap any card to flip it</div>
+                    <div class="tut-vid-step-item" id="vs2">🔍 Find its matching pair</div>
+                    <div class="tut-vid-step-item" id="vs3">✅ Match = pair removed!</div>
+                    <div class="tut-vid-step-item" id="vs4">⏱️ Clear all before time's up</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Welcome (was step 0) -->
+            <div class="tut-step" data-step="1">
+                <div class="tut-emoji">👋</div>
+                <h2 class="tut-title">Welcome!</h2>
+                <div class="tut-player-card">
+                    <div class="tut-player-label">You are player</div>
+                    <div class="tut-player-num" id="tutPlayerNum">#—</div>
+                    <div class="tut-player-sub" id="tutPlayerSub">to ever play Memory Match!</div>
+                </div>
+
+                <!-- Name input -->
+                <div class="tut-name-wrap">
+                    <label class="tut-name-label" for="tutNameInput">WHAT'S YOUR NAME?</label>
+                    <div class="tut-name-row">
+                        <input id="tutNameInput" class="tut-name-input" type="text" maxlength="20"
+                            placeholder="Enter your name…" autocomplete="off" spellcheck="false" oninput="onNameInput()"
+                            onkeydown="if(event.key==='Enter') tutNext()">
+                        <span class="tut-name-check" id="tutNameCheck"></span>
+                    </div>
+                    <div class="tut-name-hint" id="tutNameHint">Press Next or hit Enter to continue</div>
+                </div>
+            </div>
+
+            <div class="tut-step" data-step="2">
+                <div class="tut-emoji">🧠</div>
+                <h2 class="tut-title">How to Play</h2>
+                <p class="tut-desc">Find all matching pairs of cards before the timer runs out!</p>
+                <div class="tut-demo">
+                    <div class="tut-card tut-flip-a">
+                        <div class="tut-card-inner">
+                            <div class="tut-card-front">?</div>
+                            <div class="tut-card-back">🐶</div>
+                        </div>
+                    </div>
+                    <div class="tut-card tut-flip-b">
+                        <div class="tut-card-inner">
+                            <div class="tut-card-front">?</div>
+                            <div class="tut-card-back">🐶</div>
+                        </div>
+                    </div>
+                    <div class="tut-card">
+                        <div class="tut-card-inner">
+                            <div class="tut-card-front">?</div>
+                            <div class="tut-card-back">🐱</div>
+                        </div>
+                    </div>
+                    <div class="tut-card">
+                        <div class="tut-card-inner">
+                            <div class="tut-card-front">?</div>
+                            <div class="tut-card-back">🐱</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tut-step" data-step="3">
+                <div class="tut-emoji">👆</div>
+                <h2 class="tut-title">Flip &amp; Match</h2>
+                <p class="tut-desc">Tap any card to flip it. Then tap a second card. If both cards show the <span
+                        class="tut-hl">same icon</span> — it's a match!</p>
+                <div class="tut-rules">
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">✅</span>
+                        <span>Matched pairs disappear from the board</span>
+                    </div>
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">❌</span>
+                        <span>Mismatches flip back face-down</span>
+                    </div>
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">⏱️</span>
+                        <span>Clear the board before the timer runs out</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tut-step" data-step="4">
+                <div class="tut-emoji">⚡</div>
+                <h2 class="tut-title">Score &amp; IQ</h2>
+                <p class="tut-desc">Chain matches in a row to build <span class="tut-hl">COMBO streaks</span> and earn
+                    bonus points!</p>
+                <div class="tut-rules">
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">🔥</span>
+                        <span>+10 pts per match · Combo bonus grows fast</span>
+                    </div>
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">🧠</span>
+                        <span>IQ rises on matches, drops on misses</span>
+                    </div>
+                    <div class="tut-rule">
+                        <span class="tut-rule-icon">💡</span>
+                        <span>Use up to 3 Hints to reveal all cards briefly</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="tut-step" data-step="5">
+                <div class="tut-emoji">🚀</div>
+                <h2 class="tut-title" id="tutReadyTitle">Ready to Play!</h2>
+                <p class="tut-desc" id="tutReadyDesc">Choose a <span class="tut-hl">difficulty</span>, pick your
+                    favourite icon theme, and start matching!</p>
+                <div class="tut-modes">
+                    <div class="tut-mode tut-easy">🟢 Easy · 4×4 · 60s</div>
+                    <div class="tut-mode tut-med">🟡 Medium · 6×6 · 120s</div>
+                    <div class="tut-mode tut-hard">🔴 Hard · 8×8 · 240s</div>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="tut-nav">
+                <button class="tut-skip-btn" onclick="closeTutorial()">Skip</button>
+                <button class="tut-next-btn" id="tutNextBtn" onclick="tutNext()">Next →</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hurry-Up Side Panels (fixed, outside game flow) -->
+    <div id="hurryLeft"  class="hurry-side hurry-left"  style="display:none;"></div>
+    <div id="hurryRight" class="hurry-side hurry-right" style="display:none;"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
