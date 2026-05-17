@@ -228,8 +228,31 @@
                 <span class="tut-dot" data-step="5"></span>
             </div>
 
-            <!-- Step 0: Tutorial Video -->
+            <!-- Step 0: Welcome -->
             <div class="tut-step active" data-step="0">
+                <div class="tut-emoji">👋</div>
+                <h2 class="tut-title">Welcome!</h2>
+                <div class="tut-player-card">
+                    <div class="tut-player-label">You are player</div>
+                    <div class="tut-player-num" id="tutPlayerNum">#—</div>
+                    <div class="tut-player-sub" id="tutPlayerSub">to ever play Memory Match!</div>
+                </div>
+
+                <!-- Name input -->
+                <div class="tut-name-wrap">
+                    <label class="tut-name-label" for="tutNameInput">WHAT'S YOUR NAME?</label>
+                    <div class="tut-name-row">
+                        <input id="tutNameInput" class="tut-name-input" type="text" maxlength="20"
+                            placeholder="Enter your name…" autocomplete="off" spellcheck="false" oninput="onNameInput()"
+                            onkeydown="if(event.key==='Enter') tutNext()">
+                        <span class="tut-name-check" id="tutNameCheck"></span>
+                    </div>
+                    <div class="tut-name-hint" id="tutNameHint">Press Next or hit Enter to continue</div>
+                </div>
+            </div>
+
+            <!-- Step 1: Tutorial Video -->
+            <div class="tut-step" data-step="1">
                 <div class="tut-emoji">🎬</div>
                 <h2 class="tut-title">Quick Tutorial</h2>
                 <p class="tut-desc">Watch this short video to see how the game works!</p>
@@ -284,29 +307,6 @@
                     <div class="tut-vid-step-item" id="vs2">🔍 Find its matching pair</div>
                     <div class="tut-vid-step-item" id="vs3">✅ Match = pair removed!</div>
                     <div class="tut-vid-step-item" id="vs4">⏱️ Clear all before time's up</div>
-                </div>
-            </div>
-
-            <!-- Step 1: Welcome (was step 0) -->
-            <div class="tut-step" data-step="1">
-                <div class="tut-emoji">👋</div>
-                <h2 class="tut-title">Welcome!</h2>
-                <div class="tut-player-card">
-                    <div class="tut-player-label">You are player</div>
-                    <div class="tut-player-num" id="tutPlayerNum">#—</div>
-                    <div class="tut-player-sub" id="tutPlayerSub">to ever play Memory Match!</div>
-                </div>
-
-                <!-- Name input -->
-                <div class="tut-name-wrap">
-                    <label class="tut-name-label" for="tutNameInput">WHAT'S YOUR NAME?</label>
-                    <div class="tut-name-row">
-                        <input id="tutNameInput" class="tut-name-input" type="text" maxlength="20"
-                            placeholder="Enter your name…" autocomplete="off" spellcheck="false" oninput="onNameInput()"
-                            onkeydown="if(event.key==='Enter') tutNext()">
-                        <span class="tut-name-check" id="tutNameCheck"></span>
-                    </div>
-                    <div class="tut-name-hint" id="tutNameHint">Press Next or hit Enter to continue</div>
                 </div>
             </div>
 

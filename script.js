@@ -76,7 +76,8 @@ function getScores() {
 
 function saveScore(mode, score, iq, moves) {
     const scores = getScores();
-    scores.push({ mode, score, iq, moves, date: new Date().toLocaleDateString() });
+    const name = getPlayerName() || "Anonymous";
+    scores.push({ name, mode, score, iq, moves, date: new Date().toLocaleDateString() });
     scores.sort((a, b) => b.score - a.score);
     localStorage.setItem("memoryScores", JSON.stringify(scores.slice(0, 10)));
 }
@@ -96,6 +97,7 @@ function renderLeaderboard() {
     lb.innerHTML = scores.map((s, i) => `
         <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
             <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
+            <span class="lb-name">${s.name || 'Anonymous'}</span>
             <span class="lb-mode">${s.mode}</span>
             <span class="lb-score">${s.score} pts</span>
             <span class="lb-iq">IQ ${s.iq}</span>
@@ -627,14 +629,14 @@ function renderTutStep() {
     });
 
     // Start / stop video animation
-    if (tutStep === 0) {
+    if (tutStep === 1) {
         startVideoAnimation();
     } else {
         stopVideoAnimation();
     }
 
-    // Auto-focus name field on step 1
-    if (tutStep === 1) {
+    // Auto-focus name field on step 0
+    if (tutStep === 0) {
         setTimeout(() => document.getElementById('tutNameInput').focus(), 300);
     }
 
@@ -659,8 +661,8 @@ function renderTutStep() {
 }
 
 function tutNext() {
-    // Save name when leaving step 1 (name input step)
-    if (tutStep === 1) {
+    // Save name when leaving step 0 (name input step)
+    if (tutStep === 0) {
         const name = document.getElementById('tutNameInput').value.trim();
         if (name) savePlayerName(name);
     }
