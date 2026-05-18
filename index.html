@@ -21,6 +21,7 @@
 
     <!-- ══ HOME ══ -->
     <div id="home">
+        <button id="themeToggleBtn" onclick="toggleThemeMode()" title="Toggle Light/Dark Mode">☀️ LIGHT</button>
         <button id="logoutBtn" onclick="logout()" title="Log Out">⏏ LOG OUT</button>
         <div class="home-center">
             <div class="title-wrap">
@@ -86,7 +87,7 @@
             <div class="leaderboard-wrap">
                 <div class="lb-header">
                     <span class="lb-title">🏅 HIGH SCORES</span>
-                    <button class="lb-clear-btn" onclick="clearScores()">CLEAR</button>
+                    <button class="lb-clear-btn" onclick="refreshLeaderboard()">Refresh</button>
                 </div>
                 <div id="leaderboard"></div>
             </div>

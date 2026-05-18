@@ -2350,3 +2350,40 @@ body {
         gap: 7px;
     }
 }
+
+#themeToggleBtn {
+    position: absolute;
+    top: 20px;
+    left: 24px;
+    z-index: 20;
+    padding: 8px 18px;
+    border-radius: 30px;
+    border: 1px solid rgba(255, 215, 0, 0.45);
+    background: rgba(255, 215, 0, 0.08);
+    color: var(--gold);
+    font-family: 'Orbitron', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#themeToggleBtn:hover {
+    background: rgba(255, 215, 0, 0.2);
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.35);
+    transform: translateY(-2px);
+}
+
+body.light-mode {
+    --cyan: #006fa6;
+    --magenta: #c2006b;
+    --gold: #b07800;
+    --green: #007a40;
+    --red: #c2001f;
+    --bg: #f0f4f8;
+    color: #1a1a2e;
+    background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 140, 200, 0.10) 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(180, 0, 120, 0.07) 0%, transparent 60%), var(--bg);
+}

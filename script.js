@@ -106,11 +106,8 @@ function renderLeaderboard() {
         </div>`).join("");
 }
 
-function clearScores() {
-    if (confirm("Clear all high scores?")) {
-        localStorage.removeItem("memoryScores");
-        renderLeaderboard();
-    }
+function refreshLeaderboard() {
+    renderLeaderboard();
 }
 
 /* ══ CUSTOM BOX ══ */
@@ -536,28 +533,58 @@ function logout() {
     location.reload();
 }
 
+/* ══ THEME TOGGLE ══ */
+function toggleThemeMode() {
+    const isLight = document.body.classList.toggle('light-mode');
+    const btn = document.getElementById('themeToggleBtn');
+    if (isLight) {
+        if (btn) btn.textContent = '🌙 DARK';
+        localStorage.setItem('memoryTheme', 'light');
+    } else {
+        if (btn) btn.textContent = '☀️ LIGHT';
+        localStorage.setItem('memoryTheme', 'dark');
+    }
+}
+
+function initTheme() {
+    const savedTheme = localStorage.getItem('memoryTheme');
+    const btn = document.getElementById('themeToggleBtn');
+    if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        if (btn) btn.textContent = '🌙 DARK';
+    } else {
+        document.body.classList.remove('light-mode');
+        if (btn) btn.textContent = '☀️ LIGHT';
+    }
+}
+
 /* ══ INIT ══ */
 window.addEventListener("DOMContentLoaded", () => {
+    initTheme();
     spawnFloatingCards();
     renderLeaderboard();
     initTutorial();
 });
 
 /* ══ USER COUNTER ══ */
-function getOrAssignUserNumber() {
+async function getOrAssignUserNumber() {
     let myNum = parseInt(localStorage.getItem('memoryUserNum') || '0');
     if (!myNum) {
-        let global = parseInt(localStorage.getItem('memoryGlobalUserCount') || '0');
-        global++;
-        myNum = global;
-        localStorage.setItem('memoryGlobalUserCount', global);
-        localStorage.setItem('memoryUserNum', myNum);
+        try {
+            const response = await fetch('https://api.counterapi.dev/v1/tushar2007_memorymatch/logins/up');
+            const data = await response.json();
+            myNum = data.count;
+            localStorage.setItem('memoryUserNum', myNum);
+        } catch (error) {
+            console.error('Error fetching global count:', error);
+            let global = parseInt(localStorage.getItem('memoryGlobalUserCount') || '0');
+            global++;
+            myNum = global;
+            localStorage.setItem('memoryGlobalUserCount', global);
+            localStorage.setItem('memoryUserNum', myNum);
+        }
     }
     return myNum;
-}
-
-function getTotalUsers() {
-    return parseInt(localStorage.getItem('memoryGlobalUserCount') || '1');
 }
 
 function ordinalSuffix(n) {
@@ -594,11 +621,10 @@ function onNameInput() {
 let tutStep = 0;
 const TUT_TOTAL = 6;
 
-function initTutorial() {
+async function initTutorial() {
     const isNew = !localStorage.getItem('memoryTutDone');
     if (isNew) {
-        const userNum = getOrAssignUserNumber();
-        const total = getTotalUsers();
+        const userNum = await getOrAssignUserNumber();
 
         document.getElementById('tutPlayerNum').textContent = '#' + userNum;
         document.getElementById('tutUserNumber').textContent = '#' + userNum;
