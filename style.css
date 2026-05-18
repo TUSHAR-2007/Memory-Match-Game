@@ -2387,3 +2387,118 @@ body.light-mode {
     color: #1a1a2e;
     background: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 140, 200, 0.10) 0%, transparent 70%), radial-gradient(ellipse 60% 50% at 80% 80%, rgba(180, 0, 120, 0.07) 0%, transparent 60%), var(--bg);
 }
+
+/* Fix scanlines in light mode */
+body.light-mode .scanlines {
+    background: repeating-linear-gradient(to bottom,
+            transparent 0px, transparent 3px,
+            rgba(0, 0, 0, 0.04) 3px, rgba(0, 0, 0, 0.04) 4px);
+}
+
+/* Fix vignette in light mode */
+body.light-mode .vignette {
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(255, 255, 255, 0.6) 100%);
+}
+
+/* Overrides for text and panels to look good in light mode */
+body.light-mode .mode-btn {
+    color: #1a1a2e;
+    background: rgba(255, 255, 255, 0.6);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .mode-btn::before {
+    background: linear-gradient(135deg, rgba(0, 140, 200, 0.1) 0%, transparent 60%);
+}
+
+body.light-mode .btn-detail,
+body.light-mode .title-sub,
+body.light-mode .time-row,
+body.light-mode .custom-row label,
+body.light-mode .tut-vid-step-item,
+body.light-mode .tut-desc,
+body.light-mode .tut-rule span,
+body.light-mode .win-stat-label,
+body.light-mode .theme-label {
+    color: rgba(26, 26, 46, 0.6);
+}
+
+body.light-mode .top,
+body.light-mode .custom-inner,
+body.light-mode .tut-box,
+body.light-mode .pause-box {
+    background: rgba(255, 255, 255, 0.7);
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .lb-row {
+    background: rgba(255, 255, 255, 0.5);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+body.light-mode .lb-top {
+    background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), rgba(255, 255, 255, 0.5));
+}
+
+body.light-mode .card-front {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15), 0 0 12px rgba(0, 140, 200, 0.1);
+}
+
+body.light-mode .card:hover:not(.flipped):not(.solved) .card-front {
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.2), 0 0 20px rgba(0, 140, 200, 0.2);
+}
+
+body.light-mode .tut-vid-step-item.vid-active {
+    background: rgba(0, 140, 200, 0.07);
+    border-color: rgba(0, 140, 200, 0.3);
+    color: var(--cyan);
+}
+
+body.light-mode #gameOverModal,
+body.light-mode #pauseMenu,
+body.light-mode #tutorialOverlay,
+body.light-mode #winScreen {
+    background: rgba(240, 244, 248, 0.92);
+}
+
+body.light-mode .win-content,
+body.light-mode .tut-box {
+    color: #1a1a2e;
+}
+
+body.light-mode .tut-name-input {
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    color: var(--cyan);
+}
+
+body.light-mode .theme-btn {
+    background: rgba(255, 255, 255, 0.5);
+    color: #1a1a2e;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .theme-btn.active {
+    background: rgba(0, 140, 200, 0.1);
+    border-color: var(--cyan);
+}
+
+body.light-mode .win-btn,
+body.light-mode .overlay-btn {
+    background: rgba(255, 255, 255, 0.8);
+    color: #1a1a2e;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode .win-btn:hover,
+body.light-mode .overlay-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+body.light-mode #hintBtn,
+body.light-mode #pauseBtn,
+body.light-mode #gameLogoutBtn {
+    background: rgba(255, 255, 255, 0.6);
+}
