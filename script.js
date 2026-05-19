@@ -70,31 +70,103 @@ function spawnFloatingCards() {
 }
 
 /* ══ LEADERBOARD ══ */
-function getScores() {
-    try { return JSON.parse(localStorage.getItem("memoryScores") || "[]"); } catch { return []; }
+/* ══ LEADERBOARD ══ */
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b/YOUR_BIN_ID";
+const JSONBIN_KEY = "$2a$10$oC5K/adQ2GY1mf0lUkYrUutwdzpKNAH1CRlQhIrAicTjjttuCzmcC";
+
+let globalScoresCache = [];
+
+async function fetchGlobalScores() {
+    const lb = document.getElementById("leaderboard");
+    if (!lb) return;
+    
+    lb.innerHTML = `<div class="lb-empty">Loading global scores...</div>`;
+    
+    try {
+        const response = await fetch(JSONBIN_URL, {
+            headers: {
+                "X-Master-Key": JSONBIN_KEY
+            }
+        });
+        
+        if (!response.ok) throw new Error("Network response was not ok");
+        
+        const data = await response.json();
+        let scores = data.record || [];
+        if (!Array.isArray(scores)) scores = [];
+        
+        // Sort: highest IQ, then highest score, then lowest time (or moves)
+        scores.sort((a, b) => {
+            if (b.iq !== a.iq) return b.iq - a.iq;
+            if (b.score !== a.score) return b.score - a.score;
+            return a.moves - b.moves;
+        });
+        
+        globalScoresCache = scores;
+        renderLeaderboard(scores);
+    } catch (error) {
+        console.error("Failed to load global scores:", error);
+        lb.innerHTML = `<div class="lb-empty">Failed to load global scores.</div>`;
+        if (globalScoresCache.length > 0) {
+            renderLeaderboard(globalScoresCache);
+        }
+    }
 }
 
-function saveScore(mode, score, iq, moves) {
-    const scores = getScores();
+async function saveScore(mode, score, iq, moves) {
     const name = getPlayerName() || "Anonymous";
-    scores.push({ name, mode, score, iq, moves, date: new Date().toLocaleDateString() });
-    scores.sort((a, b) => b.score - a.score);
-    localStorage.setItem("memoryScores", JSON.stringify(scores.slice(0, 10)));
+    const newEntry = { name, mode, score, iq, moves, date: new Date().toLocaleDateString() };
+    
+    try {
+        const getRes = await fetch(JSONBIN_URL, {
+            headers: { "X-Master-Key": JSONBIN_KEY }
+        });
+        
+        let scores = [];
+        if (getRes.ok) {
+            const data = await getRes.json();
+            scores = data.record || [];
+            if (!Array.isArray(scores)) scores = [];
+        }
+        
+        scores.push(newEntry);
+        
+        scores.sort((a, b) => {
+            if (b.iq !== a.iq) return b.iq - a.iq;
+            if (b.score !== a.score) return b.score - a.score;
+            return a.moves - b.moves;
+        });
+        
+        scores = scores.slice(0, 50);
+        
+        await fetch(JSONBIN_URL, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+                "X-Master-Key": JSONBIN_KEY
+            },
+            body: JSON.stringify(scores)
+        });
+        
+        await fetchGlobalScores();
+    } catch (error) {
+        console.error("Failed to save global score:", error);
+    }
 }
 
 function isHighScore(newScore) {
-    const scores = getScores();
-    return scores.length < 10 || newScore > (scores[scores.length - 1]?.score || 0);
+    const scores = globalScoresCache;
+    return scores.length < 10 || newScore > (scores[Math.min(scores.length - 1, 9)]?.score || 0);
 }
 
-function renderLeaderboard() {
+function renderLeaderboard(scores = globalScoresCache) {
     const lb = document.getElementById("leaderboard");
-    const scores = getScores();
-    if (!scores.length) {
+    if (!scores || !scores.length) {
         lb.innerHTML = `<div class="lb-empty">No scores yet — play a game!</div>`;
         return;
     }
-    lb.innerHTML = scores.map((s, i) => `
+    const displayScores = scores.slice(0, 10);
+    lb.innerHTML = displayScores.map((s, i) => `
         <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
             <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
             <span class="lb-name">${s.name || 'Anonymous'}</span>
@@ -104,10 +176,6 @@ function renderLeaderboard() {
             <span class="lb-moves">${s.moves} moves</span>
             <span class="lb-date">${s.date}</span>
         </div>`).join("");
-}
-
-function refreshLeaderboard() {
-    renderLeaderboard();
 }
 
 /* ══ CUSTOM BOX ══ */
@@ -518,7 +586,7 @@ function goHome() {
     document.getElementById("gameOverModal").style.display = "none";
     document.getElementById("pauseMenu").style.display = "none";
     document.getElementById("home").style.display = "flex";
-    renderLeaderboard();
+    fetchGlobalScores();
     spawnFloatingCards();
 }
 
@@ -562,29 +630,28 @@ function initTheme() {
 window.addEventListener("DOMContentLoaded", () => {
     initTheme();
     spawnFloatingCards();
-    renderLeaderboard();
+    fetchGlobalScores();
     initTutorial();
 });
 
 /* ══ USER COUNTER ══ */
 async function getOrAssignUserNumber() {
-    let myNum = parseInt(localStorage.getItem('memoryUserNum') || '0');
-    if (!myNum) {
-        try {
-            const response = await fetch('https://api.counterapi.dev/v1/tushar2007_memorymatch/logins/up');
-            const data = await response.json();
-            myNum = data.count;
-            localStorage.setItem('memoryUserNum', myNum);
-        } catch (error) {
-            console.error('Error fetching global count:', error);
+    try {
+        const response = await fetch('https://api.counterapi.dev/v1/tushar2007_memorymatch/logins/up');
+        const data = await response.json();
+        return data.count;
+    } catch (error) {
+        console.error('Error fetching global count:', error);
+        let myNum = parseInt(localStorage.getItem('memoryUserNum') || '0');
+        if (!myNum) {
             let global = parseInt(localStorage.getItem('memoryGlobalUserCount') || '0');
             global++;
             myNum = global;
             localStorage.setItem('memoryGlobalUserCount', global);
             localStorage.setItem('memoryUserNum', myNum);
         }
+        return myNum;
     }
-    return myNum;
 }
 
 function ordinalSuffix(n) {
