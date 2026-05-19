@@ -70,7 +70,7 @@ function spawnFloatingCards() {
 }
 
 /* ══ LEADERBOARD ══ */
-const JSONBIN_URL = "https://api.jsonbin.io/v3/b/67d028fcad19ca34f81907cb";
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b/6a0c08cbee5a733b12e21a93";
 const JSONBIN_KEY = "$2a$10$oC5K/adQ2GY1mf0lUkYrUutwdzpKNAH1CRlQhIrAicTjjttuCzmcC";
 
 let globalScoresCache = [];
@@ -140,7 +140,22 @@ async function saveScore(mode, score, iq, moves) {
             if (!Array.isArray(scores)) scores = [];
         }
         
-        scores.push(newEntry);
+        // Check if user already has a score in this mode
+        const existingIdx = scores.findIndex(s => s.email === email && s.mode === mode);
+        if (existingIdx !== -1) {
+            const old = scores[existingIdx];
+            // Compare score logic (higher IQ, higher score, lower moves)
+            let isBetter = false;
+            if (iq > old.iq) isBetter = true;
+            else if (iq === old.iq && score > old.score) isBetter = true;
+            else if (iq === old.iq && score === old.score && moves < old.moves) isBetter = true;
+            
+            if (isBetter) {
+                scores[existingIdx] = newEntry; // Replace with better
+            }
+        } else {
+            scores.push(newEntry);
+        }
         
         // Group by mode
         const grouped = { "Easy": [], "Medium": [], "Hard": [] };
