@@ -207,18 +207,21 @@ function renderLeaderboard(scores = globalScoresCache) {
 
     let html = "";
     for (const [m, modeScores] of Object.entries(grouped)) {
-        if (modeScores.length === 0) continue;
         html += `<div class="lb-mode-header" style="text-align:center; padding: 10px; color: var(--gold); font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">--- ${m.toUpperCase()} ---</div>`;
-        html += modeScores.slice(0, 5).map((s, i) => `
-            <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
-                <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
-                <span class="lb-name">${s.name || 'Anonymous'}</span>
-                <span class="lb-mode">${s.mode}</span>
-                <span class="lb-score">${s.score} pts</span>
-                <span class="lb-iq">IQ ${s.iq}</span>
-                <span class="lb-moves">${s.moves} moves</span>
-                <span class="lb-date">${s.date}</span>
-            </div>`).join("");
+        if (modeScores.length === 0) {
+            html += `<div class="lb-empty" style="text-align:center; font-size:0.9rem; opacity:0.6; padding-bottom: 10px;">No scores yet</div>`;
+        } else {
+            html += modeScores.slice(0, 5).map((s, i) => `
+                <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
+                    <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
+                    <span class="lb-name">${s.name || 'Anonymous'}</span>
+                    <span class="lb-mode">${s.mode}</span>
+                    <span class="lb-score">${s.score} pts</span>
+                    <span class="lb-iq">IQ ${s.iq}</span>
+                    <span class="lb-moves">${s.moves} moves</span>
+                    <span class="lb-date">${s.date}</span>
+                </div>`).join("");
+        }
     }
     lb.innerHTML = html;
 }
