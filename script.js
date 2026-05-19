@@ -170,7 +170,7 @@ async function saveScore(mode, score, iq, moves) {
                 if (b.score !== a.score) return b.score - a.score;
                 return a.moves - b.moves;
             });
-            sortedAndCapped.push(...grouped[m].slice(0, 20));
+            sortedAndCapped.push(...grouped[m].slice(0, 5));
         }
         
         await fetch(JSONBIN_URL, {
@@ -209,7 +209,7 @@ function renderLeaderboard(scores = globalScoresCache) {
     for (const [m, modeScores] of Object.entries(grouped)) {
         if (modeScores.length === 0) continue;
         html += `<div class="lb-mode-header" style="text-align:center; padding: 10px; color: var(--gold); font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">--- ${m.toUpperCase()} ---</div>`;
-        html += modeScores.slice(0, 20).map((s, i) => `
+        html += modeScores.slice(0, 5).map((s, i) => `
             <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
                 <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
                 <span class="lb-name">${s.name || 'Anonymous'}</span>
