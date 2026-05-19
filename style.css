@@ -2414,6 +2414,12 @@ body.light-mode .lb-row {
     border-bottom: 1px solid rgba(0, 0, 0, 0.05);
 }
 
+body.light-mode .lb-iq,
+body.light-mode .lb-moves,
+body.light-mode .lb-date {
+    color: rgba(26, 26, 46, 0.5);
+}
+
 body.light-mode .lb-top {
     background: linear-gradient(90deg, rgba(255, 215, 0, 0.15), rgba(255, 255, 255, 0.5));
 }
@@ -2448,6 +2454,10 @@ body.light-mode .tut-name-input {
     background: rgba(255, 255, 255, 0.8);
     border: 1px solid rgba(0, 0, 0, 0.2);
     color: var(--cyan);
+}
+
+body.light-mode .tut-name-input::placeholder {
+    color: rgba(26, 26, 46, 0.4);
 }
 
 body.light-mode .theme-btn {
