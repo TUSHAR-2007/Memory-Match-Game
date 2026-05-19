@@ -690,7 +690,7 @@ window.addEventListener("DOMContentLoaded", () => {
 /* ══ USER COUNTER ══ */
 async function getOrAssignUserNumber() {
     try {
-        const response = await fetch('https://api.counterapi.dev/v1/tushar2007_memorymatch/logins/up');
+        const response = await fetch('https://api.counterapi.dev/v1/tushar2007_memorymatch_v2/logins/up');
         const data = await response.json();
         return data.count;
     } catch (error) {
