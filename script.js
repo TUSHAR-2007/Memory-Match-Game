@@ -70,8 +70,7 @@ function spawnFloatingCards() {
 }
 
 /* ══ LEADERBOARD ══ */
-/* ══ LEADERBOARD ══ */
-const JSONBIN_URL = "https://api.jsonbin.io/v3/b/YOUR_BIN_ID";
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b/6a0bf13f6610dd3ae86ad133";
 const JSONBIN_KEY = "$2a$10$oC5K/adQ2GY1mf0lUkYrUutwdzpKNAH1CRlQhIrAicTjjttuCzmcC";
 
 let globalScoresCache = [];
