@@ -101,6 +101,7 @@
             <div id="hudName" style="display:none">👤 &nbsp;<span id="hudNameText"></span></div>
             <div>IQ &nbsp;<span id="iq">100</span></div>
             <div>Score &nbsp;<span id="score">0</span></div>
+            <div>Best &nbsp;<span id="bestScore">0</span></div>
             <div>Moves &nbsp;<span id="moves">0</span></div>
         </div>
 
@@ -248,6 +249,18 @@
                         <span class="tut-name-check" id="tutNameCheck"></span>
                     </div>
                     <div class="tut-name-hint" id="tutNameHint">Press Next or hit Enter to continue</div>
+                </div>
+
+                <!-- Email input -->
+                <div class="tut-email-wrap" style="margin-top: 16px;">
+                    <label class="tut-name-label" for="tutEmailInput">EMAIL ADDRESS</label>
+                    <div class="tut-name-row">
+                        <input id="tutEmailInput" class="tut-name-input" type="email" maxlength="50"
+                            placeholder="Enter your email..." autocomplete="email" spellcheck="false" oninput="onEmailInput()"
+                            onkeydown="if(event.key==='Enter') tutNext()">
+                        <span class="tut-name-check" id="tutEmailCheck"></span>
+                    </div>
+                    <div class="tut-name-hint" id="tutEmailHint">Optional. Leave empty for guest access.</div>
                 </div>
             </div>
 

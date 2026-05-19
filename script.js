@@ -70,7 +70,7 @@ function spawnFloatingCards() {
 }
 
 /* ══ LEADERBOARD ══ */
-const JSONBIN_URL = "https://api.jsonbin.io/v3/b/6a0bf13f6610dd3ae86ad133";
+const JSONBIN_URL = "https://api.jsonbin.io/v3/b/67d028fcad19ca34f81907cb";
 const JSONBIN_KEY = "$2a$10$oC5K/adQ2GY1mf0lUkYrUutwdzpKNAH1CRlQhIrAicTjjttuCzmcC";
 
 let globalScoresCache = [];
@@ -113,8 +113,20 @@ async function fetchGlobalScores() {
 }
 
 async function saveScore(mode, score, iq, moves) {
+    // Local Best Score handling
+    const currentBest = parseInt(localStorage.getItem('memoryBest_' + mode) || '0');
+    if (score > currentBest) {
+        localStorage.setItem('memoryBest_' + mode, score);
+        if (mode === currMode) {
+            document.getElementById("bestScore").textContent = score;
+        }
+    }
+
+    if (mode === "Custom") return; // Exclude Custom from global
+
     const name = getPlayerName() || "Anonymous";
-    const newEntry = { name, mode, score, iq, moves, date: new Date().toLocaleDateString() };
+    const email = getPlayerEmail() || `guest@${localStorage.getItem('memoryUserNum') || '0'}`;
+    const newEntry = { name, email, mode, score, iq, moves, date: new Date().toLocaleDateString() };
     
     try {
         const getRes = await fetch(JSONBIN_URL, {
@@ -130,13 +142,21 @@ async function saveScore(mode, score, iq, moves) {
         
         scores.push(newEntry);
         
-        scores.sort((a, b) => {
-            if (b.iq !== a.iq) return b.iq - a.iq;
-            if (b.score !== a.score) return b.score - a.score;
-            return a.moves - b.moves;
+        // Group by mode
+        const grouped = { "Easy": [], "Medium": [], "Hard": [] };
+        scores.forEach(s => {
+            if (grouped[s.mode]) grouped[s.mode].push(s);
         });
-        
-        scores = scores.slice(0, 50);
+
+        const sortedAndCapped = [];
+        for (const m in grouped) {
+            grouped[m].sort((a, b) => {
+                if (b.iq !== a.iq) return b.iq - a.iq;
+                if (b.score !== a.score) return b.score - a.score;
+                return a.moves - b.moves;
+            });
+            sortedAndCapped.push(...grouped[m].slice(0, 20));
+        }
         
         await fetch(JSONBIN_URL, {
             method: "PUT",
@@ -144,7 +164,7 @@ async function saveScore(mode, score, iq, moves) {
                 "Content-Type": "application/json",
                 "X-Master-Key": JSONBIN_KEY
             },
-            body: JSON.stringify(scores)
+            body: JSON.stringify(sortedAndCapped)
         });
         
         await fetchGlobalScores();
@@ -164,17 +184,28 @@ function renderLeaderboard(scores = globalScoresCache) {
         lb.innerHTML = `<div class="lb-empty">No scores yet — play a game!</div>`;
         return;
     }
-    const displayScores = scores.slice(0, 10);
-    lb.innerHTML = displayScores.map((s, i) => `
-        <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
-            <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
-            <span class="lb-name">${s.name || 'Anonymous'}</span>
-            <span class="lb-mode">${s.mode}</span>
-            <span class="lb-score">${s.score} pts</span>
-            <span class="lb-iq">IQ ${s.iq}</span>
-            <span class="lb-moves">${s.moves} moves</span>
-            <span class="lb-date">${s.date}</span>
-        </div>`).join("");
+
+    const grouped = { "Hard": [], "Medium": [], "Easy": [] }; // Desired display order
+    scores.forEach(s => {
+        if (grouped[s.mode]) grouped[s.mode].push(s);
+    });
+
+    let html = "";
+    for (const [m, modeScores] of Object.entries(grouped)) {
+        if (modeScores.length === 0) continue;
+        html += `<div class="lb-mode-header" style="text-align:center; padding: 10px; color: var(--gold); font-family: 'Orbitron', sans-serif; letter-spacing: 2px;">--- ${m.toUpperCase()} ---</div>`;
+        html += modeScores.slice(0, 20).map((s, i) => `
+            <div class="lb-row ${i === 0 ? 'lb-top' : ''}">
+                <span class="lb-rank">${i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `#${i + 1}`}</span>
+                <span class="lb-name">${s.name || 'Anonymous'}</span>
+                <span class="lb-mode">${s.mode}</span>
+                <span class="lb-score">${s.score} pts</span>
+                <span class="lb-iq">IQ ${s.iq}</span>
+                <span class="lb-moves">${s.moves} moves</span>
+                <span class="lb-date">${s.date}</span>
+            </div>`).join("");
+    }
+    lb.innerHTML = html;
 }
 
 /* ══ CUSTOM BOX ══ */
@@ -218,6 +249,10 @@ function startGame(rows, cols, time, mode) {
     } else {
         hudName.style.display = "none";
     }
+
+    // Show Best Score
+    const bestScore = localStorage.getItem('memoryBest_' + mode) || 0;
+    document.getElementById("bestScore").textContent = bestScore;
 
     iq = 100; score = 0; moves = 0; comboStreak = 0;
     hintsLeft = 3;
@@ -595,6 +630,7 @@ function logout() {
     stopConfetti();
     clearInterval(timerInterval);
     localStorage.removeItem('memoryPlayerName');
+    localStorage.removeItem('memoryPlayerEmail');
     localStorage.removeItem('memoryTutDone');
     localStorage.removeItem('memoryUserNum');
     location.reload();
@@ -683,6 +719,37 @@ function onNameInput() {
     }
 }
 
+function getPlayerEmail() {
+    return localStorage.getItem('memoryPlayerEmail') || '';
+}
+
+function savePlayerEmail(email) {
+    localStorage.setItem('memoryPlayerEmail', email.trim());
+}
+
+function onEmailInput() {
+    const val = document.getElementById('tutEmailInput').value.trim();
+    const check = document.getElementById('tutEmailCheck');
+    const hint = document.getElementById('tutEmailHint');
+    const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+    
+    if (val.length === 0) {
+        check.textContent = '';
+        hint.textContent = 'Optional. Leave empty for guest access.';
+        hint.style.color = 'rgba(255,255,255,0.3)';
+    } else if (isValid) {
+        check.textContent = '✓';
+        check.style.color = 'var(--green)';
+        hint.textContent = 'Valid email.';
+        hint.style.color = 'rgba(0,255,136,0.7)';
+    } else {
+        check.textContent = '✗';
+        check.style.color = 'var(--red)';
+        hint.textContent = 'Please enter a valid email format.';
+        hint.style.color = 'var(--red)';
+    }
+}
+
 /* ══ TUTORIAL ══ */
 let tutStep = 0;
 const TUT_TOTAL = 6;
@@ -705,6 +772,12 @@ async function initTutorial() {
         // Pre-fill name if previously saved (rare but possible)
         const saved = getPlayerName();
         if (saved) document.getElementById('tutNameInput').value = saved;
+
+        const savedEmail = getPlayerEmail();
+        if (savedEmail && !savedEmail.startsWith('guest@')) {
+            document.getElementById('tutEmailInput').value = savedEmail;
+            onEmailInput();
+        }
 
         tutStep = 0;
         renderTutStep();
@@ -753,10 +826,25 @@ function renderTutStep() {
 }
 
 function tutNext() {
-    // Save name when leaving step 0 (name input step)
+    // Save name and check email when leaving step 0
     if (tutStep === 0) {
         const name = document.getElementById('tutNameInput').value.trim();
         if (name) savePlayerName(name);
+        
+        const emailEl = document.getElementById('tutEmailInput');
+        const emailVal = emailEl.value.trim();
+        if (emailVal.length > 0) {
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+            if (!isValid) {
+                emailEl.style.border = '2px solid var(--red)';
+                setTimeout(() => emailEl.style.border = '', 800);
+                return;
+            }
+            savePlayerEmail(emailVal);
+        } else {
+            const userNum = localStorage.getItem('memoryUserNum') || '0';
+            savePlayerEmail(`guest@${userNum}`);
+        }
     }
 
     if (tutStep < TUT_TOTAL - 1) {
@@ -802,6 +890,24 @@ function stopVideoAnimation() {
 }
 
 function closeTutorial() {
+    // Validate email if closed from step 0
+    if (tutStep === 0) {
+        const emailEl = document.getElementById('tutEmailInput');
+        const emailVal = emailEl.value.trim();
+        if (emailVal.length > 0) {
+            const isValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal);
+            if (!isValid) {
+                emailEl.style.border = '2px solid var(--red)';
+                setTimeout(() => emailEl.style.border = '', 800);
+                return;
+            }
+            savePlayerEmail(emailVal);
+        } else {
+            const userNum = localStorage.getItem('memoryUserNum') || '0';
+            savePlayerEmail(`guest@${userNum}`);
+        }
+    }
+
     stopVideoAnimation();
     // Save name even on skip
     const nameEl = document.getElementById('tutNameInput');
