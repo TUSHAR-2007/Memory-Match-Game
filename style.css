@@ -78,10 +78,10 @@ body {
     position: relative;
     min-height: 100vh;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    flex-direction: column;
     overflow: hidden;
     z-index: 10;
+    padding: 70px 0 20px;
 }
 
 .float-card {
@@ -137,7 +137,8 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 40px;
-    padding: 40px 24px;
+    padding: 20px 24px;
+    margin: auto;
 }
 
 .title-eyebrow {
@@ -1537,7 +1538,7 @@ body {
 
 @media (max-width: 480px) {
     .home-center {
-        padding: 28px 16px;
+        padding: 10px 16px;
         gap: 28px;
     }
 
@@ -2517,4 +2518,19 @@ body.light-mode .tut-next-btn.tut-finish {
 
 body.light-mode .tut-next-btn.tut-finish:hover {
     background: rgba(0, 122, 64, 0.25);
+}
+
+@media (max-width: 480px) {
+    #themeToggleBtn {
+        top: 14px;
+        left: 14px;
+        padding: 6px 12px;
+        font-size: 0.55rem;
+    }
+    #logoutBtn {
+        top: 14px;
+        right: 14px;
+        padding: 6px 12px;
+        font-size: 0.55rem;
+    }
 }
